@@ -16,7 +16,7 @@
 # https://wiki.python.org/moin/BitwiseOperators
 #
 # Podpowiedź: W pliku `white-small.bmp` zaszyta jest wiadomość `TESTEOF`.
-
+import struct
 
 class Steganography:
     def __init__(self, filename: str):
@@ -26,13 +26,20 @@ class Steganography:
 
     def search_message(self):
         with open(self.filename, "rb") as f:
-            a = f.read()
+            bmp_array = f.read()
+            #t = bytearray(f.read())
+
+        offset_bits = [bmp_array[10], bmp_array[11], bmp_array[12], bmp_array[13]]
+        file_offset = struct.unpack("I", bytearray(offset_bits))
+        pixel_array_begin = file_offset[0]-8
 
         lsb_chr = ''
         lsb_str = ''
-        for i in range(len(a)):
-            if i > 129:
-                lsb_chr += bin(a[i])[-1::]
+
+        for i in range(len(bmp_array)):
+            if i >= pixel_array_begin:
+            # if i >= 130:
+                lsb_chr += bin(bmp_array[i])[-1::]
                 if len(lsb_chr)>7:
                     int_chr = int(lsb_chr, 2)
                     lsb_str += chr(int_chr)
